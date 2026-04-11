@@ -1,0 +1,43 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Project specific
+.env
+*.key
+*.pub
+*.conf
+*.log
+*.pid
+*.state
+*.lock
+config/clients/
+backups/
+temp/
+tmp/
+
+# Docker
+docker-compose.override.yml
+*.dockerignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Local
+*.local
+*.backup
+**/push.bat
