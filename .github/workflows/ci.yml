@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, v4 ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check bash syntax
+      run: |
+        find . -name "*.sh" -exec bash -n {} \;
+    
+    - name: Check core structure
+      run: |
+        test -f core/bin/ndm || exit 1
+        test -f core/lib/config.sh || exit 1
+        test -d core/modules/available || exit 1
+    
+    - name: Check install script
+      run: |
+        bash -n install.sh
+        bash -n uninstall.sh
