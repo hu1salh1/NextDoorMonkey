@@ -1,0 +1,147 @@
+#!/bin/bash
+#=====================================================================
+# NextDoorMonkey v4.0 - Central Management Core
+# Установка: sudo ./install.sh
+# Использование: ndm [command] [options]
+#=====================================================================
+
+NDM_ROOT="/opt/nextdoormonkey"
+NDM_CONFIG="/etc/ndm"
+NDM_MODULES="$NDM_ROOT/core/modules"
+NDM_ENABLED="$NDM_MODULES/enabled"
+
+# Загрузка библиотек
+source "$NDM_ROOT/core/lib/config.sh" 2>/dev/null || { echo "ERROR: Cannot load config.sh"; exit 1; }
+source "$NDM_ROOT/core/lib/docker.sh" 2>/dev/null || { echo "ERROR: Cannot load docker.sh"; exit 1; }
+source "$NDM_ROOT/core/lib/network.sh" 2>/dev/null || { echo "ERROR: Cannot load network.sh"; exit 1; }
+source "$NDM_ROOT/core/lib/ui.sh" 2>/dev/null || { echo "ERROR: Cannot load ui.sh"; exit 1; }
+
+#=====================================================================
+# Основные команды
+#=====================================================================
+show_help() {
+    cat << EOF
+${GREEN}🐒 NextDoorMonkey v4.0 - Система обхода ограничений${NC}
+
+${CYAN}ИСПОЛЬЗОВАНИЕ:${NC}
+    ndm [command] [options]
+
+${CYAN}ОСНОВНЫЕ КОМАНДЫ:${NC}
+    ${GREEN}status${NC}              - Показать статус всех модулей
+    ${GREEN}info${NC}                - Показать информацию для подключения
+    ${GREEN}setup${NC}               - Первоначальная настройка системы
+    ${GREEN}config${NC}              - Настройка параметров
+    ${GREEN}ports${NC}               - Настройка портов
+
+${CYAN}УПРАВЛЕНИЕ МОДУЛЯМИ:${NC}
+    ${GREEN}modules list${NC}        - Список доступных модулей
+    ${GREEN}modules enable <name>${NC}  - Включить модуль
+    ${GREEN}modules disable <name>${NC} - Выключить модуль
+    ${GREEN}modules install <name>${NC} - Установить модуль
+    ${GREEN}modules remove <name>${NC}  - Удалить модуль
+
+${CYAN}УПРАВЛЕНИЕ СЕРВИСАМИ:${NC}
+    ${GREEN}start [module]${NC}      - Запустить модуль(и)
+    ${GREEN}stop [module]${NC}       - Остановить модуль(и)
+    ${GREEN}restart [module]${NC}    - Перезапустить модуль(и)
+    ${GREEN}logs [module]${NC}       - Показать логи
+
+${CYAN}ДИАГНОСТИКА:${NC}
+    ${GREEN}check${NC}               - Проверка системы
+    ${GREEN}doctor${NC}              - Диагностика проблем
+    ${GREEN}backup${NC}              - Создать бэкап
+    ${GREEN}restore${NC}             - Восстановить бэкап
+
+${CYAN}СПРАВКА:${NC}
+    ${GREEN}help${NC}                - Показать эту справку
+    ${GREEN}version${NC}             - Версия
+
+${YELLOW}Примеры:${NC}
+    ndm setup                    # Первоначальная настройка
+    ndm modules enable amneziawg # Включить AmneziaWG
+    ndm start all                # Запустить все модули
+    ndm info                     # Показать информацию для подключения
+EOF
+}
+
+#=====================================================================
+# Обработка команд
+#=====================================================================
+case "$1" in
+    status)
+        show_status
+        ;;
+    info)
+        show_connection_info
+        ;;
+    setup)
+        initial_setup
+        ;;
+    config)
+        configure_system
+        ;;
+    ports)
+        configure_ports
+        ;;
+    modules)
+        case "$2" in
+            list)
+                list_modules
+                ;;
+            enable)
+                enable_module "$3"
+                ;;
+            disable)
+                disable_module "$3"
+                ;;
+            install)
+                install_module "$3"
+                ;;
+            remove)
+                remove_module "$3"
+                ;;
+            *)
+                echo "Usage: ndm modules {list|enable|disable|install|remove} [name]"
+                ;;
+        esac
+        ;;
+    start)
+        start_services "$2"
+        ;;
+    stop)
+        stop_services "$2"
+        ;;
+    restart)
+        restart_services "$2"
+        ;;
+    logs)
+        show_logs "$2"
+        ;;
+    check)
+        system_check
+        ;;
+    doctor)
+        system_diagnostic
+        ;;
+    backup)
+        create_backup
+        ;;
+    restore)
+        restore_backup "$2"
+        ;;
+    version)
+        echo "NextDoorMonkey v4.0"
+        ;;
+    help|--help|-h)
+        show_help
+        ;;
+    *)
+        if [ -z "$1" ]; then
+            show_help
+        else
+            echo -e "${RED}Неизвестная команда: $1${NC}"
+            echo "Используйте 'ndm help' для справки"
+            exit 1
+        fi
+        ;;
+esac
